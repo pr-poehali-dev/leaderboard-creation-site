@@ -31,9 +31,27 @@ const mockTeams: Array<{name: string; members: number; totalScore: number; capta
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState("leaderboard");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [currentUser, setCurrentUser] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
+  const [isAdmin, setIsAdmin] = useState(() => {
+    return localStorage.getItem('isAdmin') === 'true';
+  });
+  const [currentUser, setCurrentUser] = useState(() => {
+    return localStorage.getItem('currentUser') || '';
+  });
+  const [players, setPlayers] = useState<Player[]>(() => {
+    const saved = localStorage.getItem('players');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [clans, setClans] = useState(() => {
+    const saved = localStorage.getItem('clans');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [teams, setTeams] = useState(() => {
+    const saved = localStorage.getItem('teams');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [registrationData, setRegistrationData] = useState({
     username: "",
     email: "",
@@ -70,21 +88,45 @@ export default function Index() {
     const userCode = prompt(`На email ${registrationData.email} отправлен код подтверждения.\n\nДля демонстрации ваш код: ${confirmationCode}\n\nВведите код подтверждения:`);
     
     if (userCode === confirmationCode.toString()) {
-      setCurrentUser(registrationData.username);
+      const username = registrationData.username;
+      const email = registrationData.email;
+      const country = registrationData.country;
+      
+      // Сохраняем данные пользователя
+      setCurrentUser(username);
       setIsLoggedIn(true);
+      localStorage.setItem('currentUser', username);
+      localStorage.setItem('isLoggedIn', 'true');
       
       // Проверяем, является ли email админским
-      const isAdminEmail = adminEmails.includes(registrationData.email.toLowerCase());
+      const isAdminEmail = adminEmails.includes(email.toLowerCase());
       setIsAdmin(isAdminEmail);
+      localStorage.setItem('isAdmin', isAdminEmail.toString());
+      
+      // Добавляем игрока в таблицу лидеров
+      const newPlayer: Player = {
+        id: Date.now(),
+        rank: players.length + 1,
+        username: username,
+        score: 0,
+        country: country,
+        flag: getCountryFlag(country),
+        time: "--:--",
+        lastActive: "Сейчас",
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
+      };
+      
+      const updatedPlayers = [...players, newPlayer];
+      setPlayers(updatedPlayers);
+      localStorage.setItem('players', JSON.stringify(updatedPlayers));
       
       if (isAdminEmail) {
-        alert(`Email подтвержден! Добро пожаловать, ${registrationData.username}! Вы получили права администратора!`);
+        alert(`Email подтвержден! Добро пожаловать, ${username}! Вы получили права администратора!`);
       } else {
-        alert(`Email подтвержден! Добро пожаловать, ${registrationData.username}!`);
+        alert(`Email подтвержден! Добро пожаловать, ${username}! Вы добавлены в таблицу лидеров.`);
       }
       
       setActiveTab("leaderboard");
-      // Очищаем форму
       setRegistrationData({ username: "", email: "", country: "" });
     } else {
       alert("Неверный код подтверждения! Попробуйте снова.");
@@ -97,7 +139,59 @@ export default function Index() {
     setIsLoggedIn(false);
     setIsAdmin(false);
     setCurrentUser("");
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('isAdmin');
     alert("Вы вышли из аккаунта");
+  };
+  
+  const getCountryFlag = (country: string) => {
+    const flags: {[key: string]: string} = {
+      'россия': '🇷🇺',
+      'сша': '🇺🇸',
+      'германия': '🇩🇪',
+      'франция': '🇫🇷',
+      'италия': '🇮🇹',
+      'испания': '🇪🇸',
+      'канада': '🇨🇦',
+      'норвегия': '🇳🇴',
+      'финляндия': '🇫🇮'
+    };
+    return flags[country.toLowerCase()] || '🌍';
+  };
+  
+  const handleCreateClan = () => {
+    const clanName = prompt("Введите название клана:");
+    if (clanName && clanName.trim()) {
+      const newClan = {
+        name: clanName.trim(),
+        members: 1,
+        avgScore: 0,
+        leader: currentUser
+      };
+      const updatedClans = [...clans, newClan];
+      setClans(updatedClans);
+      localStorage.setItem('clans', JSON.stringify(updatedClans));
+      alert(`Клан "${clanName}" создан! Вы стали лидером клана.`);
+      setActiveTab("clans");
+    }
+  };
+  
+  const handleCreateTeam = () => {
+    const teamName = prompt("Введите название команды:");
+    if (teamName && teamName.trim()) {
+      const newTeam = {
+        name: teamName.trim(),
+        members: 1,
+        totalScore: 0,
+        captain: currentUser
+      };
+      const updatedTeams = [...teams, newTeam];
+      setTeams(updatedTeams);
+      localStorage.setItem('teams', JSON.stringify(updatedTeams));
+      alert(`Команда "${teamName}" создана! Вы стали капитаном команды.`);
+      setActiveTab("teams");
+    }
   };
 
   return (
@@ -167,19 +261,19 @@ export default function Index() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">0</div>
+                      <div className="text-2xl font-bold text-primary">{players.length}</div>
                       <div className="text-sm text-muted-foreground">Всего игроков</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">0</div>
+                      <div className="text-2xl font-bold text-primary">{players.filter(p => p.lastActive === "Сейчас").length}</div>
                       <div className="text-sm text-muted-foreground">Активных</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">0</div>
+                      <div className="text-2xl font-bold text-primary">{clans.length}</div>
                       <div className="text-sm text-muted-foreground">Кланов</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">0</div>
+                      <div className="text-2xl font-bold text-primary">{teams.length}</div>
                       <div className="text-sm text-muted-foreground">Команд</div>
                     </div>
                   </div>
@@ -210,7 +304,7 @@ export default function Index() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {mockPlayers.length === 0 ? (
+                      {players.length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={6} className="text-center py-8">
                             <div className="flex flex-col items-center space-y-2">
@@ -221,7 +315,7 @@ export default function Index() {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        mockPlayers.map((player) => (
+                        players.map((player) => (
                           <TableRow key={player.id} className="border-border hover:bg-secondary/50 transition-colors">
                             <TableCell>
                               <div className="flex items-center space-x-2">
@@ -332,16 +426,22 @@ export default function Index() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {mockClans.length === 0 ? (
+                  {clans.length === 0 ? (
                     <div className="text-center py-8">
                       <div className="flex flex-col items-center space-y-2">
                         <Icon name="Shield" className="h-12 w-12 text-muted-foreground" />
                         <h3 className="font-orbitron text-lg text-muted-foreground">Пока нет кланов</h3>
                         <p className="text-sm text-muted-foreground">Создай первый клан и собери команду!</p>
+                        {isLoggedIn && (
+                          <Button onClick={handleCreateClan} className="mt-4">
+                            <Icon name="Plus" className="h-4 w-4 mr-2" />
+                            Создать клан
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ) : (
-                    mockClans.map((clan, index) => (
+                    clans.map((clan, index) => (
                       <Card key={index} className="bg-secondary/30">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
@@ -384,16 +484,22 @@ export default function Index() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {mockTeams.length === 0 ? (
+                  {teams.length === 0 ? (
                     <div className="text-center py-8">
                       <div className="flex flex-col items-center space-y-2">
                         <Icon name="Users" className="h-12 w-12 text-muted-foreground" />
                         <h3 className="font-orbitron text-lg text-muted-foreground">Команды отсутствуют</h3>
                         <p className="text-sm text-muted-foreground">Создай команду и покажи, на что способна дружная команда!</p>
+                        {isLoggedIn && (
+                          <Button onClick={handleCreateTeam} className="mt-4">
+                            <Icon name="Plus" className="h-4 w-4 mr-2" />
+                            Создать команду
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ) : (
-                    mockTeams.map((team, index) => (
+                    teams.map((team, index) => (
                       <Card key={index} className="bg-secondary/30">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
