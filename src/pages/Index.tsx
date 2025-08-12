@@ -23,27 +23,11 @@ interface Player {
   avatar?: string;
 }
 
-const mockPlayers: Player[] = [
-  { id: 1, rank: 1, username: "IgorKay", score: 359359, country: "RU", flag: "🇷🇺", time: "6m 50s", lastActive: "2 месяца назад", clan: "SpeedRunners", avatar: "https://cdn.poehali.dev/files/7085a218-a37e-4843-9cbb-616918f4434b.jpg" },
-  { id: 2, rank: 2, username: "drip120", score: 494000, country: "IT", flag: "🇮🇹", time: "7m 01s", lastActive: "1 год назад", team: "Elite Squad" },
-  { id: 3, rank: 3, username: "NoHacsJustRoblox", score: 283000, country: "CA", flag: "🇨🇦", time: "7m 22s", lastActive: "1 год назад", clan: "ProGamers" },
-  { id: 4, rank: 4, username: "skycrab1", score: 784000, country: "NO", flag: "🇳🇴", time: "7m 23s", lastActive: "1 год назад" },
-  { id: 5, rank: 5, username: "NoFear1337", score: 254000, country: "ES", flag: "🇪🇸", time: "7m 26s", lastActive: "1 год назад", team: "Thunder Wolves" },
-  { id: 6, rank: 6, username: "Jay12310", score: 121000, country: "CA", flag: "🇨🇦", time: "7m 29s", lastActive: "1 год назад" },
-  { id: 7, rank: 7, username: "jason_n", score: 374000, country: "DE", flag: "🇩🇪", time: "7m 29s", lastActive: "10 месяцев назад", clan: "Velocity" },
-  { id: 8, rank: 8, username: "sadekeppi", score: 931000, country: "FI", flag: "🇫🇮", time: "7m 29s", lastActive: "4 месяца назад" },
-];
+const mockPlayers: Player[] = [];
 
-const mockClans = [
-  { name: "SpeedRunners", members: 15, avgScore: 285000, leader: "IgorKay" },
-  { name: "ProGamers", members: 23, avgScore: 198000, leader: "NoHacsJustRoblox" },
-  { name: "Velocity", members: 8, avgScore: 245000, leader: "jason_n" },
-];
+const mockClans: Array<{name: string; members: number; avgScore: number; leader: string}> = [];
 
-const mockTeams = [
-  { name: "Elite Squad", members: 5, totalScore: 1250000, captain: "drip120" },
-  { name: "Thunder Wolves", members: 4, totalScore: 890000, captain: "NoFear1337" },
-];
+const mockTeams: Array<{name: string; members: number; totalScore: number; captain: string}> = [];
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState("leaderboard");
@@ -118,19 +102,19 @@ export default function Index() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">1,247</div>
+                      <div className="text-2xl font-bold text-primary">0</div>
                       <div className="text-sm text-muted-foreground">Всего игроков</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">156</div>
+                      <div className="text-2xl font-bold text-primary">0</div>
                       <div className="text-sm text-muted-foreground">Активных</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">23</div>
+                      <div className="text-2xl font-bold text-primary">0</div>
                       <div className="text-sm text-muted-foreground">Кланов</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">45</div>
+                      <div className="text-2xl font-bold text-primary">0</div>
                       <div className="text-sm text-muted-foreground">Команд</div>
                     </div>
                   </div>
@@ -161,50 +145,62 @@ export default function Index() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {mockPlayers.map((player) => (
-                        <TableRow key={player.id} className="border-border hover:bg-secondary/50 transition-colors">
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              {player.rank <= 3 && (
-                                <Icon 
-                                  name={player.rank === 1 ? "Crown" : player.rank === 2 ? "Medal" : "Award"} 
-                                  className={`h-4 w-4 ${player.rank === 1 ? 'text-yellow-500' : player.rank === 2 ? 'text-gray-400' : 'text-amber-600'}`}
-                                />
-                              )}
-                              <span className="font-bold">{player.rank}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={player.avatar} />
-                                <AvatarFallback>{player.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="flex items-center space-x-2">
-                                  <span className="font-medium">{player.username}</span>
-                                  <span className="text-lg">{player.flag}</span>
-                                </div>
-                                {(player.clan || player.team) && (
-                                  <div className="text-xs text-muted-foreground">
-                                    {player.clan && <Badge variant="outline" className="mr-1">{player.clan}</Badge>}
-                                    {player.team && <Badge variant="secondary">{player.team}</Badge>}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-mono text-primary">{player.time}</TableCell>
-                          <TableCell className="font-mono text-primary">{player.time}</TableCell>
-                          <TableCell className="text-muted-foreground">{player.lastActive}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <span className="font-bold text-primary">{player.score.toLocaleString()}</span>
-                              <Icon name="TrendingUp" className="h-4 w-4 text-green-500" />
+                      {mockPlayers.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8">
+                            <div className="flex flex-col items-center space-y-2">
+                              <Icon name="Trophy" className="h-12 w-12 text-muted-foreground" />
+                              <h3 className="font-orbitron text-lg text-muted-foreground">Таблица лидеров пуста</h3>
+                              <p className="text-sm text-muted-foreground">Стань первым! Зарегистрируйся и займи место #1</p>
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      ) : (
+                        mockPlayers.map((player) => (
+                          <TableRow key={player.id} className="border-border hover:bg-secondary/50 transition-colors">
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                {player.rank <= 3 && (
+                                  <Icon 
+                                    name={player.rank === 1 ? "Crown" : player.rank === 2 ? "Medal" : "Award"} 
+                                    className={`h-4 w-4 ${player.rank === 1 ? 'text-yellow-500' : player.rank === 2 ? 'text-gray-400' : 'text-amber-600'}`}
+                                  />
+                                )}
+                                <span className="font-bold">{player.rank}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-3">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={player.avatar} />
+                                  <AvatarFallback>{player.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="flex items-center space-x-2">
+                                    <span className="font-medium">{player.username}</span>
+                                    <span className="text-lg">{player.flag}</span>
+                                  </div>
+                                  {(player.clan || player.team) && (
+                                    <div className="text-xs text-muted-foreground">
+                                      {player.clan && <Badge variant="outline" className="mr-1">{player.clan}</Badge>}
+                                      {player.team && <Badge variant="secondary">{player.team}</Badge>}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-mono text-primary">{player.time}</TableCell>
+                            <TableCell className="font-mono text-primary">{player.time}</TableCell>
+                            <TableCell className="text-muted-foreground">{player.lastActive}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-primary">{player.score.toLocaleString()}</span>
+                                <Icon name="TrendingUp" className="h-4 w-4 text-green-500" />
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -271,32 +267,42 @@ export default function Index() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {mockClans.map((clan, index) => (
-                    <Card key={index} className="bg-secondary/30">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <Avatar className="h-12 w-12">
-                              <AvatarFallback className="bg-primary text-primary-foreground font-orbitron">
-                                {clan.name.substring(0, 2)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h3 className="font-orbitron font-bold">{clan.name}</h3>
-                              <p className="text-sm text-muted-foreground">Лидер: {clan.leader}</p>
+                  {mockClans.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="flex flex-col items-center space-y-2">
+                        <Icon name="Shield" className="h-12 w-12 text-muted-foreground" />
+                        <h3 className="font-orbitron text-lg text-muted-foreground">Пока нет кланов</h3>
+                        <p className="text-sm text-muted-foreground">Создай первый клан и собери команду!</p>
+                      </div>
+                    </div>
+                  ) : (
+                    mockClans.map((clan, index) => (
+                      <Card key={index} className="bg-secondary/30">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <Avatar className="h-12 w-12">
+                                <AvatarFallback className="bg-primary text-primary-foreground font-orbitron">
+                                  {clan.name.substring(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <h3 className="font-orbitron font-bold">{clan.name}</h3>
+                                <p className="text-sm text-muted-foreground">Лидер: {clan.leader}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-primary">{clan.members} участников</div>
+                              <div className="text-sm text-muted-foreground">Ср. очки: {clan.avgScore.toLocaleString()}</div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="font-bold text-primary">{clan.members} участников</div>
-                            <div className="text-sm text-muted-foreground">Ср. очки: {clan.avgScore.toLocaleString()}</div>
+                          <div className="mt-3">
+                            <Progress value={(clan.avgScore / 500000) * 100} className="h-2" />
                           </div>
-                        </div>
-                        <div className="mt-3">
-                          <Progress value={(clan.avgScore / 500000) * 100} className="h-2" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -313,32 +319,42 @@ export default function Index() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {mockTeams.map((team, index) => (
-                    <Card key={index} className="bg-secondary/30">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <Avatar className="h-12 w-12">
-                              <AvatarFallback className="bg-accent text-accent-foreground font-orbitron">
-                                {team.name.substring(0, 2)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h3 className="font-orbitron font-bold">{team.name}</h3>
-                              <p className="text-sm text-muted-foreground">Капитан: {team.captain}</p>
+                  {mockTeams.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="flex flex-col items-center space-y-2">
+                        <Icon name="Users" className="h-12 w-12 text-muted-foreground" />
+                        <h3 className="font-orbitron text-lg text-muted-foreground">Команды отсутствуют</h3>
+                        <p className="text-sm text-muted-foreground">Создай команду и покажи, на что способна дружная команда!</p>
+                      </div>
+                    </div>
+                  ) : (
+                    mockTeams.map((team, index) => (
+                      <Card key={index} className="bg-secondary/30">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <Avatar className="h-12 w-12">
+                                <AvatarFallback className="bg-accent text-accent-foreground font-orbitron">
+                                  {team.name.substring(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <h3 className="font-orbitron font-bold">{team.name}</h3>
+                                <p className="text-sm text-muted-foreground">Капитан: {team.captain}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-primary">{team.members} игроков</div>
+                              <div className="text-sm text-muted-foreground">Общие очки: {team.totalScore.toLocaleString()}</div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="font-bold text-primary">{team.members} игроков</div>
-                            <div className="text-sm text-muted-foreground">Общие очки: {team.totalScore.toLocaleString()}</div>
+                          <div className="mt-3">
+                            <Progress value={(team.totalScore / 2000000) * 100} className="h-2" />
                           </div>
-                        </div>
-                        <div className="mt-3">
-                          <Progress value={(team.totalScore / 2000000) * 100} className="h-2" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
