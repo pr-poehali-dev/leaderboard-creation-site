@@ -31,6 +31,9 @@ const mockTeams: Array<{name: string; members: number; totalScore: number; capta
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState("leaderboard");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUser, setCurrentUser] = useState("");
   const [registrationData, setRegistrationData] = useState({
     username: "",
     email: "",
@@ -39,7 +42,31 @@ export default function Index() {
 
   const handleRegistration = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Регистрация успешна! Добро пожаловать в таблицу лидеров!");
+    if (registrationData.username && registrationData.email) {
+      setCurrentUser(registrationData.username);
+      setIsLoggedIn(true);
+      // Если это первый пользователь, делаем его админом
+      setIsAdmin(true);
+      alert(`Добро пожаловать, ${registrationData.username}! Вы получили права администратора как первый пользователь!`);
+      setActiveTab("leaderboard");
+    }
+  };
+  
+  const handleLogin = () => {
+    const username = prompt("Введите ваш никнейм:");
+    if (username) {
+      setCurrentUser(username);
+      setIsLoggedIn(true);
+      setIsAdmin(true); // Пока что все получают админа
+      alert(`Добро пожаловать обратно, ${username}!`);
+    }
+  };
+  
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setIsAdmin(false);
+    setCurrentUser("");
+    alert("Вы вышли из аккаунта");
   };
 
   return (
@@ -53,14 +80,26 @@ export default function Index() {
               <h1 className="text-2xl font-orbitron font-bold text-primary">LEADERBOARD</h1>
             </div>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm">
-                <Icon name="Settings" className="h-4 w-4 mr-2" />
-                Админ-панель
-              </Button>
-              <Button variant="default" size="sm">
-                <Icon name="UserPlus" className="h-4 w-4 mr-2" />
-                Войти
-              </Button>
+              {isLoggedIn && isAdmin && (
+                <Button variant="outline" size="sm">
+                  <Icon name="Settings" className="h-4 w-4 mr-2" />
+                  Админ-панель
+                </Button>
+              )}
+              {isLoggedIn ? (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-muted-foreground">Привет, {currentUser}!</span>
+                  <Button variant="outline" size="sm" onClick={handleLogout}>
+                    <Icon name="LogOut" className="h-4 w-4 mr-2" />
+                    Выйти
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="default" size="sm" onClick={handleLogin}>
+                  <Icon name="UserPlus" className="h-4 w-4 mr-2" />
+                  Войти
+                </Button>
+              )}
             </div>
           </div>
         </div>
