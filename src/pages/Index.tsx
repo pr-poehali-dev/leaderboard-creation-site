@@ -52,15 +52,7 @@ export default function Index() {
     }
   };
   
-  const handleLogin = () => {
-    const username = prompt("Введите ваш никнейм:");
-    if (username) {
-      setCurrentUser(username);
-      setIsLoggedIn(true);
-      setIsAdmin(true); // Пока что все получают админа
-      alert(`Добро пожаловать обратно, ${username}!`);
-    }
-  };
+
   
   const handleLogout = () => {
     setIsLoggedIn(false);
@@ -86,7 +78,7 @@ export default function Index() {
                   Админ-панель
                 </Button>
               )}
-              {isLoggedIn ? (
+              {isLoggedIn && (
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-muted-foreground">Привет, {currentUser}!</span>
                   <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -94,11 +86,6 @@ export default function Index() {
                     Выйти
                   </Button>
                 </div>
-              ) : (
-                <Button variant="default" size="sm" onClick={handleLogin}>
-                  <Icon name="UserPlus" className="h-4 w-4 mr-2" />
-                  Войти
-                </Button>
               )}
             </div>
           </div>
