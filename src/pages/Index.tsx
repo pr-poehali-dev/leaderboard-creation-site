@@ -43,6 +43,9 @@ export default function Index() {
   const handleRegistration = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Список админ email-ов
+    const adminEmails = ["angel16940841@gmail.com"];
+    
     // Проверка валидности email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(registrationData.email)) {
@@ -69,8 +72,17 @@ export default function Index() {
     if (userCode === confirmationCode.toString()) {
       setCurrentUser(registrationData.username);
       setIsLoggedIn(true);
-      setIsAdmin(true);
-      alert(`Email подтвержден! Добро пожаловать, ${registrationData.username}! Вы получили права администратора как первый пользователь!`);
+      
+      // Проверяем, является ли email админским
+      const isAdminEmail = adminEmails.includes(registrationData.email.toLowerCase());
+      setIsAdmin(isAdminEmail);
+      
+      if (isAdminEmail) {
+        alert(`Email подтвержден! Добро пожаловать, ${registrationData.username}! Вы получили права администратора!`);
+      } else {
+        alert(`Email подтвержден! Добро пожаловать, ${registrationData.username}!`);
+      }
+      
       setActiveTab("leaderboard");
       // Очищаем форму
       setRegistrationData({ username: "", email: "", country: "" });
