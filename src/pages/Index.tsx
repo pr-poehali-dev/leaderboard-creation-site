@@ -42,13 +42,40 @@ export default function Index() {
 
   const handleRegistration = (e: React.FormEvent) => {
     e.preventDefault();
-    if (registrationData.username && registrationData.email) {
+    
+    // Проверка валидности email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registrationData.email)) {
+      alert("Пожалуйста, введите корректный email адрес!");
+      return;
+    }
+    
+    // Проверка на заполненность полей
+    if (!registrationData.username || !registrationData.email || !registrationData.country) {
+      alert("Пожалуйста, заполните все поля!");
+      return;
+    }
+    
+    // Проверка длины никнейма
+    if (registrationData.username.length < 3) {
+      alert("Никнейм должен содержать минимум 3 символа!");
+      return;
+    }
+    
+    // Имитация отправки кода подтверждения
+    const confirmationCode = Math.floor(100000 + Math.random() * 900000);
+    const userCode = prompt(`На email ${registrationData.email} отправлен код подтверждения.\n\nДля демонстрации ваш код: ${confirmationCode}\n\nВведите код подтверждения:`);
+    
+    if (userCode === confirmationCode.toString()) {
       setCurrentUser(registrationData.username);
       setIsLoggedIn(true);
-      // Если это первый пользователь, делаем его админом
       setIsAdmin(true);
-      alert(`Добро пожаловать, ${registrationData.username}! Вы получили права администратора как первый пользователь!`);
+      alert(`Email подтвержден! Добро пожаловать, ${registrationData.username}! Вы получили права администратора как первый пользователь!`);
       setActiveTab("leaderboard");
+      // Очищаем форму
+      setRegistrationData({ username: "", email: "", country: "" });
+    } else {
+      alert("Неверный код подтверждения! Попробуйте снова.");
     }
   };
   
